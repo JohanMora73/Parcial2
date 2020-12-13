@@ -54,7 +54,7 @@ int main()
             Bo.vx=vo*cos(Bo.angulo);
             Bo.vy=vo*sin(Bo.angulo);
             GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 1, 1);
-            cout<<":) angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
+            //cout<<":) angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
             GenerarDispNeutralizador(Bo, Bd, Bn, d, Hd);
         break;
     }
@@ -135,30 +135,61 @@ void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int cas
 
 void GenerarDispNeutralizador(Bala Bo, Bala Bd, Bala Bn, float d, float Hd){
     int cont=0;
-    bool resp;
-    while(cont<3){
-        Bn.AnguloAleatorio();
-        cout<<"angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
-        for(int vo=0 ;vo<=100;vo+=2){
-            Bn.VelocidadX(Bn.angulo,vo);
-            Bn.VelocidadY(Bn.angulo,vo);
+    bool resp,riezgo;
+    for(int t=0;t<30;t++){
+        Bo.PosicionX(t);
+        Bo.PosicionY(t);
+        if(sqrt(pow(Bo.x-d,2)+pow(Bo.y-Hd,2))<=Bo.radio){
+            riezgo=true;
+            break;
+        }
+        else riezgo=false;
+    }
+    if(riezgo==true){
+        cout<<"El disparo representa un riezgo"<<endl;
+        Bd.AnguloAleatorio();
+        for(int vo = 0;vo<100;vo+=2){
+            Bd.VelocidadX(Bd.angulo,vo);
+            Bd.VelocidadY(Bd.angulo,vo);
             for(int t=0;t<30;t++){
-                Bo.PosicionX(t+3);
-                Bo.PosicionY(t+3);
-                Bd.PosicionX(t+1);
-                Bd.PosicionY(t+1);
-                Bn.PosicionX(t);
-                Bn.PosicionY(t);
-                if(sqrt(pow(Bo.x-Bd.x,2)+pow(Bo.y-Bd.y,2))>Bd.radio && sqrt(pow(Bd.x-Bn.x,2)+pow(Bd.y-Bn.y,2))<=Bn.radio && sqrt(pow(Bn.x-d,2)+pow(Bn.y-Hd,2))>Bn.radio){
-                    cout<<"Un disparo certero para neutralizar es: "<<" Angulo: "<<Bn.angulo*180/Bn.pi<<" Vo: "<<Bn.vx/cos(Bn.angulo)<<" Tiempo de vuelo: "<<t<<" Coordenada en x: "<<Bn.x<<"Coordenada en y"<<Bn.y<<endl;
-                    cout<<"Datos del disparo defensivo: defensivo: "<<" Angulo: "<<Bd.angulo*180/Bd.pi<<" Vo: "<<Bd.vx/cos(Bd.angulo)<<" Tiempo de vuelo: "<<t+1<<" Coordenada en x: "<<Bd.x<<" Coordenada en y: "<<Bd.y<<endl;
-                    cout<<"Datos del disparo ofensivo: defensivo: "<<" Angulo: "<<Bo.angulo*180/Bo.pi<<" Vo: "<<Bo.vx/cos(Bo.angulo)<<" Tiempo de vuelo: "<<t+3<<" Coordenada en x: "<<Bo.x<<" Coordenada en y: "<<Bo.y<<endl;
-                    cont++;
+                Bo.PosicionX(t+2);
+                Bo.PosicionY(t+2);
+                Bd.PosicionX(t);
+                Bd.PosicionY(t);
+                if(sqrt(pow(Bo.x-Bd.x,2)+pow(Bo.y-Bd.y,2))<=Bd.radio && sqrt(pow(Bo.x-d,2)+pow(Bo.y-Hd,2))>Bo.radio){
+                    cout<<"Un disparo defensivo ceretero es: angulo"<<Bd.angulo*180/Bd.pi<<", velovidad: "<<-Bd.vx/cos(Bd.angulo)<<" tiempo de vuelo: "<<t<<" Coordenada final x: "<<Bd.x<<" Coordenada final y: "<<Bd.y<<endl;
                     resp=true;
                     break;
                 }
             }
             if(resp==true) {resp=false; break;}
+        }
+    }
+    if(riezgo==true){
+        while(cont<3){
+            Bn.AnguloAleatorio();
+            cout<<"angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
+            for(int vo=0 ;vo<=100;vo+=2){
+                Bn.VelocidadX(Bn.angulo,vo);
+                Bn.VelocidadY(Bn.angulo,vo);
+                for(int t=0;t<30;t++){
+                    Bo.PosicionX(t+3);
+                    Bo.PosicionY(t+3);
+                    Bd.PosicionX(t+1);
+                    Bd.PosicionY(t+1);
+                    Bn.PosicionX(t);
+                    Bn.PosicionY(t);
+                    if(sqrt(pow(Bo.x-Bd.x,2)+pow(Bo.y-Bd.y,2))>Bd.radio && sqrt(pow(Bd.x-Bn.x,2)+pow(Bd.y-Bn.y,2))<=Bn.radio && sqrt(pow(Bn.x-d,2)+pow(Bn.y-Hd,2))>Bn.radio){
+                        cout<<"Un disparo certero para neutralizar es: "<<" Angulo: "<<Bn.angulo*180/Bn.pi<<" Vo: "<<Bn.vx/cos(Bn.angulo)<<" Tiempo de vuelo: "<<t<<" Coordenada en x: "<<Bn.x<<"Coordenada en y"<<Bn.y<<endl;
+                        cout<<"Datos del disparo defensivo: defensivo: "<<" Angulo: "<<Bd.angulo*180/Bd.pi<<" Vo: "<<Bd.vx/cos(Bd.angulo)<<" Tiempo de vuelo: "<<t+1<<" Coordenada en x: "<<Bd.x<<" Coordenada en y: "<<Bd.y<<endl;
+                        cout<<"Datos del disparo ofensivo: defensivo: "<<" Angulo: "<<Bo.angulo*180/Bo.pi<<" Vo: "<<Bo.vx/cos(Bo.angulo)<<" Tiempo de vuelo: "<<t+3<<" Coordenada en x: "<<Bo.x<<" Coordenada en y: "<<Bo.y<<endl;
+                        cont++;
+                        resp=true;
+                        break;
+                    }
+                }
+                if(resp==true) {resp=false; break;}
+            }
         }
     }
 
