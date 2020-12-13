@@ -1,6 +1,6 @@
 #include "bala.h"
 void GenerarDisparos(Bala B_, int x_, int y_);
-void GenerarDispDefensivos(Bala B1,Bala B2,int d, int Hd);
+void GenerarDispDefensivos(Bala B1,Bala B2,float d, float Hd, float Ho, int caso);
 int main()
 {
     float Ho, Hd, d, a, vo;
@@ -13,7 +13,7 @@ int main()
     Bala Bn(0.005*d,0,Ho,1);
     cout<<"(1) Generar 3 disparos ofensivos que comprometan la integridad del canion defensivo."<<endl;
     cout<<"(2) Generar 3 disparos defensivos que comprometan la integridad del canion ofensivo."<<endl;
-    cout<<"(3) Dado un disparo ofensivo, generar (al menos tres) disparos defensivos que impida que el canion defensivo sea destruido sin importar si el cañón ofensivo pueda ser destruido."<<endl;
+    cout<<"(3) Dado un disparo ofensivo, generar 3 disparos defensivos que impida que el canion defensivo sea destruido sin importar si el canion ofensivo pueda ser destruido."<<endl;
     cin>>menu;
     switch(menu){
         case 1:
@@ -30,7 +30,16 @@ int main()
             Bo.angulo=a*Bo.pi/180;
             Bo.vx=vo*cos(Bo.angulo);
             Bo.vy=vo*sin(Bo.angulo);
-            GenerarDispDefensivos(Bo,Bd,d, Hd);
+            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 1);
+        break;
+
+        case 4:
+            cout<<"ingrese los datos del disparo del canion ofensivo, angulo (en grados) y velocidad inicial respectivamente: "<<endl;
+            cin>>a>>vo;
+            Bo.angulo=a*Bo.pi/180;
+            Bo.vx=vo*cos(Bo.angulo);
+            Bo.vy=vo*sin(Bo.angulo);
+            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 2);
         break;
     }
 
@@ -60,7 +69,7 @@ void GenerarDisparos(Bala B, int x, int y){
     }
 }
 
-void GenerarDispDefensivos(Bala Bo,Bala Bd, int d, int Hd){
+void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int caso){
     bool riezgo,resp;
     int cont=0;
     for(int t=0;t<30;t++){
@@ -85,10 +94,20 @@ void GenerarDispDefensivos(Bala Bo,Bala Bd, int d, int Hd){
                     Bd.PosicionX(t);
                     Bd.PosicionY(t);
                     if(sqrt(pow(Bo.x-Bd.x,2)+pow(Bo.y-Bd.y,2))<=Bd.radio && sqrt(pow(Bo.x-d,2)+pow(Bo.y-Hd,2))>Bo.radio){
-                        cout<<"Un disparo defensivo ceretero es: angulo"<<Bd.angulo*180/Bd.pi<<", velovidad: "<<-Bd.vx/cos(Bd.angulo)<<" tiempo de vuelo: "<<t<<" Coordenada final x: "<<Bd.x<<" Coordenada final y: "<<Bd.y<<endl;
-                        cont++;
-                        resp=true;
-                        break;
+                        if(caso==1){
+                            cout<<"Un disparo defensivo ceretero es: angulo"<<Bd.angulo*180/Bd.pi<<", velovidad: "<<-Bd.vx/cos(Bd.angulo)<<" tiempo de vuelo: "<<t<<" Coordenada final x: "<<Bd.x<<" Coordenada final y: "<<Bd.y<<endl;
+                            cont++;
+                            resp=true;
+                            break;
+                        }
+                        else{
+                            if(sqrt(pow(Bo.x-0,2)+pow(Bo.y-Ho,2))>Bo.radio){
+                                cout<<"Un disparo defensivo ceretero es: angulo"<<Bd.angulo*180/Bd.pi<<", velovidad: "<<-Bd.vx/cos(Bd.angulo)<<" tiempo de vuelo: "<<t<<" Coordenada final x: "<<Bd.x<<" Coordenada final y: "<<Bd.y<<endl;
+                                cont++;
+                                resp=true;
+                                break;
+                            }
+                        }
                     }
                 }
                 if(resp==true) {resp=false; break;}
