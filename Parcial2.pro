@@ -4,4 +4,8 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        bala.cpp \
         main.cpp
+
+HEADERS += \
+    bala.h
