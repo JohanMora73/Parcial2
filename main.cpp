@@ -1,6 +1,7 @@
 #include "bala.h"
 void GenerarDisparos(Bala B_, int x_, int y_);
-void GenerarDispDefensivos(Bala B1,Bala B2,float d, float Hd, float Ho, int caso);
+void GenerarDispDefensivos(Bala B1,Bala B2,float d, float Hd, float Ho, int caso, int n);
+void GenerarDispNeutralizador(Bala B1, Bala B2, Bala B3, float d, float Hd);
 int main()
 {
     float Ho, Hd, d, a, vo;
@@ -14,6 +15,8 @@ int main()
     cout<<"(1) Generar 3 disparos ofensivos que comprometan la integridad del canion defensivo."<<endl;
     cout<<"(2) Generar 3 disparos defensivos que comprometan la integridad del canion ofensivo."<<endl;
     cout<<"(3) Dado un disparo ofensivo, generar 3 disparos defensivos que impida que el canion defensivo sea destruido sin importar si el canion ofensivo pueda ser destruido."<<endl;
+    cout<<"(4) Dado un disparo ofensivo, generar 3 disparos defensivos que impidan que los caniones defensivo y ofensivo puedan ser destruidos."<<endl;
+    cout<<"(5) Dado un disparo ofensivo efectivo y un disparo defensivo que comprometa la efectividad del ataque ofensivo, generar 3 disparos que neutralicen el ataque defensivo y permitan que el ataque ofensivo sea efectivo."<<endl;
     cin>>menu;
     switch(menu){
         case 1:
@@ -22,6 +25,7 @@ int main()
 
         case 2:
             GenerarDisparos(Bd,0,Ho);
+            cout<<":) angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
         break;
 
         case 3:
@@ -30,7 +34,7 @@ int main()
             Bo.angulo=a*Bo.pi/180;
             Bo.vx=vo*cos(Bo.angulo);
             Bo.vy=vo*sin(Bo.angulo);
-            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 1);
+            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 1, 3);
         break;
 
         case 4:
@@ -39,7 +43,19 @@ int main()
             Bo.angulo=a*Bo.pi/180;
             Bo.vx=vo*cos(Bo.angulo);
             Bo.vy=vo*sin(Bo.angulo);
-            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 2);
+            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 2, 3);
+
+        break;
+
+        case 5:
+            cout<<"ingrese los datos del disparo del canion ofensivo, angulo (en grados) y velocidad inicial respectivamente: "<<endl;
+            cin>>a>>vo;
+            Bo.angulo=a*Bo.pi/180;
+            Bo.vx=vo*cos(Bo.angulo);
+            Bo.vy=vo*sin(Bo.angulo);
+            GenerarDispDefensivos(Bo,Bd,d, Hd, Ho, 1, 1);
+            cout<<":) angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
+            GenerarDispNeutralizador(Bo, Bd, Bn, d, Hd);
         break;
     }
 
@@ -69,7 +85,7 @@ void GenerarDisparos(Bala B, int x, int y){
     }
 }
 
-void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int caso){
+void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int caso, int n){
     bool riezgo,resp;
     int cont=0;
     for(int t=0;t<30;t++){
@@ -83,7 +99,7 @@ void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int cas
     }
     if(riezgo==true){
         cout<<"El disparo representa un riezgo"<<endl;
-        while(cont<3){
+        while(cont<n){
             Bd.AnguloAleatorio();
             for(int vo = 0;vo<100;vo+=2){
                 Bd.VelocidadX(Bd.angulo,vo);
@@ -114,5 +130,36 @@ void GenerarDispDefensivos(Bala Bo,Bala Bd, float d, float Hd, float Ho, int cas
             }
         }
     }
-    else cout<<"El disparo no representa riezagos"<<endl;
+    else cout<<"El disparo no representa riezgos"<<endl;
+}
+
+void GenerarDispNeutralizador(Bala Bo, Bala Bd, Bala Bn, float d, float Hd){
+    int cont=0;
+    bool resp;
+    while(cont<3){
+        Bn.AnguloAleatorio();
+        cout<<"angulo defensivo: "<<Bd.angulo*180/Bd.pi<<" Velocidad inicial defensiva: "<<Bd.vx/cos(Bd.angulo)<<endl<<"Angulo ofensivo: "<<Bo.angulo*180/Bo.pi<<" Velocidad inicial ofensiva: "<<Bo.vx/cos(Bo.angulo)<<endl;
+        for(int vo=0 ;vo<=100;vo+=2){
+            Bn.VelocidadX(Bn.angulo,vo);
+            Bn.VelocidadY(Bn.angulo,vo);
+            for(int t=0;t<30;t++){
+                Bo.PosicionX(t+3);
+                Bo.PosicionY(t+3);
+                Bd.PosicionX(t+1);
+                Bd.PosicionY(t+1);
+                Bn.PosicionX(t);
+                Bn.PosicionY(t);
+                if(sqrt(pow(Bo.x-Bd.x,2)+pow(Bo.y-Bd.y,2))>Bd.radio && sqrt(pow(Bd.x-Bn.x,2)+pow(Bd.y-Bn.y,2))<=Bn.radio && sqrt(pow(Bn.x-d,2)+pow(Bn.y-Hd,2))>Bn.radio){
+                    cout<<"Un disparo certero para neutralizar es: "<<" Angulo: "<<Bn.angulo*180/Bn.pi<<" Vo: "<<Bn.vx/cos(Bn.angulo)<<" Tiempo de vuelo: "<<t<<" Coordenada en x: "<<Bn.x<<"Coordenada en y"<<Bn.y<<endl;
+                    cout<<"Datos del disparo defensivo: defensivo: "<<" Angulo: "<<Bd.angulo*180/Bd.pi<<" Vo: "<<Bd.vx/cos(Bd.angulo)<<" Tiempo de vuelo: "<<t+1<<" Coordenada en x: "<<Bd.x<<" Coordenada en y: "<<Bd.y<<endl;
+                    cout<<"Datos del disparo ofensivo: defensivo: "<<" Angulo: "<<Bo.angulo*180/Bo.pi<<" Vo: "<<Bo.vx/cos(Bo.angulo)<<" Tiempo de vuelo: "<<t+3<<" Coordenada en x: "<<Bo.x<<" Coordenada en y: "<<Bo.y<<endl;
+                    cont++;
+                    resp=true;
+                    break;
+                }
+            }
+            if(resp==true) {resp=false; break;}
+        }
+    }
+
 }
